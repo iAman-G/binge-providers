@@ -1,10 +1,8 @@
 name: Publish
 
-
 on:
   release:
     types: [created]
-
 
 jobs:
   publish:
@@ -14,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensures full repo history is checked out
 
       - uses: pnpm/action-setup@v3
         with:
@@ -29,7 +29,10 @@ jobs:
       - name: Install packages
         run: pnpm install --frozen-lockfile
 
+      - name: Ensure clean git state
+        run: git reset --hard && git clean -fdx
+
       - name: Publish
-        run: pnpm publish --access public
+        run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
