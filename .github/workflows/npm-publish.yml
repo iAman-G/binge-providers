@@ -12,12 +12,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Debug Package Manager
+      - name: Remove npm config (Stop npm ci errors)
         run: |
-          which npm || echo "npm not found"
-          which pnpm || echo "pnpm not found"
-          npm -v || echo "npm version not found"
-          pnpm -v || echo "pnpm version not found"
+          rm -f package-lock.json
+          npm config delete cache
+          echo "Always use pnpm!"
 
       - name: Set up Node.js and pnpm
         uses: actions/setup-node@v3
@@ -31,8 +30,8 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install
+      - name: Install dependencies (Force pnpm)
+        run: pnpm install --no-frozen-lockfile
 
       - name: Publish to npm
         run: pnpm publish --access public
