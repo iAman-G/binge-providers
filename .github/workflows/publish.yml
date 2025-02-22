@@ -15,6 +15,9 @@ jobs:
         with:
           fetch-depth: 0  # Ensures full repo history is checked out
 
+      - name: Ensure clean git state
+        run: git reset --hard && git clean -fdx
+
       - uses: pnpm/action-setup@v3
         with:
           version: 8
@@ -29,8 +32,8 @@ jobs:
       - name: Install packages
         run: pnpm install --frozen-lockfile
 
-      - name: Ensure clean git state
-        run: git reset --hard && git clean -fdx
+      - name: Verify required dependencies
+        run: pnpm list vitest eslint || echo "Missing dependencies, ensure they are in package.json"
 
       - name: Publish
         run: pnpm publish --access public --no-git-checks
