@@ -12,20 +12,29 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Debug Package Manager
+        run: |
+          which npm || echo "npm not found"
+          which pnpm || echo "pnpm not found"
+          npm -v || echo "npm version not found"
+          pnpm -v || echo "pnpm version not found"
+
+      - name: Set up Node.js and pnpm
         uses: actions/setup-node@v3
         with:
           node-version: 18
           registry-url: 'https://registry.npmjs.org/'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Install pnpm (Ensure Correct Version)
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile  # Uses pnpm-lock.yaml
+        run: pnpm install --frozen-lockfile || pnpm install
 
       - name: Publish to npm
         run: pnpm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
